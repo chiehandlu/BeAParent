@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fdf8f1;
+  --foreground: #2b2a28;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-sea: #7cc4d8;
+  --color-island: #8cc084;
+  --color-sand: #f3d9a4;
+  --font-sans: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+@layer components {
+  .btn-primary {
+    @apply rounded-full bg-foreground px-6 py-3 font-medium text-background transition hover:opacity-90 disabled:opacity-40;
+  }
+}
