@@ -8,7 +8,7 @@ export type StatKey =
 
 export type Stats = Record<StatKey, number>;
 
-export type StageId =
+export type IslandId =
   | "pregnancy"
   | "newborn"
   | "toddler"
@@ -20,19 +20,8 @@ export type StageId =
   | "emptyNest"
   | "farewell";
 
-export interface Stage {
-  id: StageId;
-  /** 顯示名稱，例如「懷孕期」 */
-  name: string;
-  /** 孩子年齡區間描述，例如「0–1 歲」 */
-  childAge: string;
-  /** 這個階段父母扮演的角色，例如「全天候照顧者」 */
-  parentRole: string;
-  /** 心態轉變的一句話描述 */
-  mindset: string;
-  /** 島嶼在地圖上的位置（0–100 的百分比座標） */
-  mapPosition: { x: number; y: number };
-}
+/** 內容審核狀態：draft 會在介面標示「內容草稿」。 */
+export type ReviewStatus = "draft" | "reviewed";
 
 export type Effects = Partial<Record<StatKey, number>>;
 
@@ -44,26 +33,77 @@ export interface Choice {
   feedback: string;
 }
 
-export interface GameEvent {
+/** 建築上的情境抉擇；有抉擇的建築是該島的必經任務。 */
+export interface Dilemma {
+  prompt: string;
+  choices: Choice[];
+}
+
+export interface KeyStat {
+  value: string;
+  note: string;
+}
+
+/** 建築＝人生階段裡的一項任務（對應規格書的「細項」）。 */
+export interface Building {
   id: string;
-  stageId: StageId;
+  name: string;
+  /** 白話說明 */
+  plain: string;
+  /** 對象，例如「準爸媽」 */
+  who: string;
+  facts: string[];
+  stats?: KeyStat[];
+  dilemma?: Dilemma;
+  /** 對應 content/sources.ts 的 id */
+  sourceIds?: string[];
+  review: ReviewStatus;
+}
+
+/** 島＝人生階段（對應規格書的「主題」）。 */
+export interface Island {
+  id: IslandId;
+  number: number;
+  name: string;
+  /** 孩子年齡區間描述，例如「0–1 歲」 */
+  childAge: string;
+  /** 這個階段父母扮演的角色 */
+  parentRole: string;
+  /** 一句話摘要 */
+  summary: string;
+  /** 心態轉變（引言框） */
+  mindset: string;
+  /** 六角格軸向座標 [q, r] */
+  axial: [number, number];
+  buildings: Building[];
+}
+
+export type WalkerKind = "parent" | "partner" | "child" | "teen" | "grandparent" | "helper";
+
+export type CarryKind =
+  "heart" | "bottle" | "schoolbag" | "coin" | "letter" | "photo" | "medkit" | "seedling";
+
+/** 協作線＝貫穿多個人生階段的主題。from / to 皆為陣列，可一對多。 */
+export interface Flow {
+  id: string;
   title: string;
   description: string;
-  choices: Choice[];
-  /** 對應 content/sources.ts 的 id，用於「了解更多」 */
-  sourceIds?: string[];
+  from: IslandId[];
+  to: IslandId[];
+  carry: CarryKind;
+  walker: WalkerKind;
+  bidirectional: boolean;
 }
 
 export interface ChoiceRecord {
-  eventId: string;
+  buildingId: string;
   choiceId: string;
 }
 
 export interface GameState {
   stats: Stats;
+  /** 目前所在的島（ISLANDS 的索引） */
   stageIndex: number;
-  /** 本階段已完成的事件 id */
-  completedEventIds: string[];
   history: ChoiceRecord[];
   finished: boolean;
 }

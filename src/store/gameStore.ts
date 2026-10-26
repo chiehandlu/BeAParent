@@ -7,15 +7,14 @@ import { advanceStage, chooseOption, createInitialState } from "@/game/engine";
 import type { GameState } from "@/game/types";
 
 interface GameStore extends GameState {
-  choose: (eventId: string, choiceId: string) => void;
+  choose: (buildingId: string, choiceId: string) => void;
   advance: () => void;
   reset: () => void;
 }
 
-const pickState = (s: GameStore): GameState => ({
+const pickState = (s: GameState): GameState => ({
   stats: s.stats,
   stageIndex: s.stageIndex,
-  completedEventIds: s.completedEventIds,
   history: s.history,
   finished: s.finished,
 });
@@ -25,15 +24,18 @@ export const useGameStore = create<GameStore>()(
   persist(
     (set, get) => ({
       ...createInitialState(),
-      choose: (eventId, choiceId) => set(chooseOption(pickState(get()), eventId, choiceId)),
+      choose: (buildingId, choiceId) => set(chooseOption(pickState(get()), buildingId, choiceId)),
       advance: () => set(advanceStage(pickState(get()))),
       reset: () => set(createInitialState()),
     }),
     {
       name: "beaparent-save",
-      version: 1,
+      // v2：事件改掛在建築上，進度改由 history 推導
+      version: 2,
       storage: createJSONStorage(() => localStorage),
-      partialize: pickState,
+      partialize: (s) => pickState(s),
+      migrate: (persisted, version) =>
+        version < 2 ? createInitialState() : (persisted as GameState),
     },
   ),
 );

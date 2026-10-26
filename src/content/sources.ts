@@ -29,4 +29,18 @@ export const SOURCES: Record<string, Source> = {
     url: "https://www.sfaa.gov.tw/",
     verifiedAt: null,
   },
+  "mol-parental-leave": {
+    id: "mol-parental-leave",
+    title: "育嬰留職停薪與勞工權益",
+    publisher: "勞動部",
+    url: "https://www.mol.gov.tw/",
+    verifiedAt: null,
+  },
+  edu: {
+    id: "edu",
+    title: "幼兒教育與學生升學資訊",
+    publisher: "教育部",
+    url: "https://www.edu.gov.tw/",
+    verifiedAt: null,
+  },
 };
